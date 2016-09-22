@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Percent Uninsured in Texas</title>
+    <meta charset="utf-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <link rel="polygon" type="application/json" href="http://testapps.dcgis.in.dc.gov/ddoe2/texas2.geojson">
+    <style>
+        .info {
+            padding: 6px 8px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            background: white;
+            background: rgba(255,255,255,0.8);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+
+            .info h4 {
+                margin: 0 0 5px;
+                color: #777;
+            }
+
+        .legend {
+            line-height: 18px;
+            color: #555;
+        }
+
+            .legend i {
+                width: 18px;
+                height: 18px;
+                float: left;
+                margin-right: 8px;
+                opacity: 0.7;
+            }
+    </style>
+</head>
+<body>
+    <h1>
+        Texas: Percent Uninsured, 2012 <h1>
+            <h2> Percent of population under Age 65 without health insurance
+        </h1>
+        <div id="map" style="width: 700px; height: 700px"></div>
+        <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+        <script>
+
+
+	 var baseTiles =	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+			maxZoom: 18,
+			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
+		});
+
+function getColor(p) {
+    return p >= 26 ? '#253494' :
+           p >=21 && p <=25.9 ? '#2c7fb8' :
+           p >=16.9 && p <= 20.9  ? '#41b6c4' :
+           p >=12.6 && p<=16.8 ? '#a1dab4' :
+            '#ffffcc';
+}
+function style(feature) {
+    return {
+        fillColor: getColor(feature.properties.PerUnin),
+        weight: 2,
+        opacity: 1.0,
+        color: 'black',
+        fillOpacity: 0.6
+    };
+}
+
+		$.getJSON($('link[rel="polygon"]').attr("href"), function(data){
+		var geojson = L.geoJson(data,{
+		style:style,
+			onEachFeature: function(feature,layer){
+				layer.bindPopup (feature.properties.COUNTY+"<br>"+"Percent:"+" "+feature.properties.PerUnin)
+				}
+		});
+
+
+		var legend = L.control({position: 'bottomright'});
+
+		legend.onAdd = function (map) {
+
+    var div = L.DomUtil.create('div', 'info legend'),
+        lower = [2,12.6,16.9,21,26],
+        upper = [12.5,16.8,20.9,25.9,"plus"],
+        labels = [];
+
+    // loop through our density intervals and generate a label with a colored square for each interval
+    for (var i = 0; i < lower.length; i++) {
+        div.innerHTML +=
+            '<i style="background:' + getColor(lower[i] + 1) + '"></i> ' +
+            lower[i] + '&ndash;' + upper[i]+'<br>';
+   }
+
+    return div;
+};
+
+	var map = L.map('map').setView([31.0000, -100.0000], 6);
+		baseTiles.addTo(map);
+		geojson.addTo(map);
+		legend.addTo(map);
+		});
+
+        </script>
+</body>
+</html>
+

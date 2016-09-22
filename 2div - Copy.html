@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .center {
+            margin: auto;
+            width: 50%;
+            border: 0px solid #73AD21;  
+            border-radius: 3px; 
+            position:relative;         
+        }
+
+        .childbox1 {
+           border: 0px solid black;           
+            font: 28px/1 Arial, sans-serif; 
+            padding: 15px;
+            border: 0px solid black;
+            margin: 0px;
+            text-align:center;
+            font-weight: bold;
+            color:#FFF;
+            background-color: #50667f;
+         	font-family: 'Montserrat', Helvetica, Arial, sans-serif;
+             border-radius: 3px;
+        }
+         .childbox2 {            
+            padding: 5px;
+            border: 0px solid black;
+            margin: 0px;
+            color:#FFF;
+            background-color: #50667f;
+            font-weight: normal;
+           border: 0px solid black;
+         	font-family: 'Montserrat', Helvetica, Arial, sans-serif;
+             border-radius: 3px;
+           /* background:rgba(255, 255, 255, 0.8)  none repeat scroll 0 0;*/
+        }
+        #map {
+            width:100%;
+            position:absolute;
+            height: 100%;
+             border: 2px solid black;
+        }   
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="center">
+        <div id="title" class="childbox1">
+            I shall be in the middle of parentbox regardless of its size!
+
+        </div>
+       
+        <div id="subtitle" class="childbox2">
+            You shall be ddle of paree!
+        </div>
+        <div id="content" class="childbox2">
+            You shall be!
+        </div>
+    </div>
+
+</body>
+<script>
+    document.getElementById('title').innerHTML = "DC Ward 2012";
+
+</script>
+</html>
+

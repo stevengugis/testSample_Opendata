@@ -1,0 +1,22 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>D3 Tests</title>
+    <script type="text/javascript" src="//d3js.org/d3.v3.min.js"></script>
+</head>
+<body>
+    <script type="text/javascript">
+        var dataset;
+        console.log("Before json");
+        //d3.json("pie-chart-data.json", function (error, data) {
+        //d3.json("http://opendata.dc.gov/datasets/f6483e75c41a4149a334a62abf47ab78_64.geojson", function (error, data) {
+        d3.json("http://opendata.dc.gov/datasets/f6483e75c41a4149a334a62abf47ab78_64.geojson", function (error, data) {
+            if (error) return console.warn(error);
+            dataset = data;
+            console.log("Dataset is: " + dataset);
+        });
+        console.log("After json");
+    </script>
+</body>
+</html>

@@ -1,0 +1,420 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=7,IE=9" />
+    <!--The viewport meta tag is used to improve the presentation and behavior
+    of the samples on iOS devices-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>heatmap.js ArcGIS JavaScript API Heatmap Layer</title>
+    <link rel="shortcut icon"
+          type="image/png" href="http://www.patrick-wied.at/img/favicon.png" />
+    <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.10/js/dojo/dijit/themes/claro/claro.css">
+    <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.10/js/esri/css/esri.css" />
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        #main {
+            position: relative;
+            width: 1020px;
+            padding: 20px;
+            margin: auto;
+        }
+
+        #heatmapArea {
+            position: relative;
+            float: left;
+            width: 800px;
+            height: 600px;
+            border: 1px dashed black;
+        }
+
+        #configArea {
+            position: relative;
+            float: left;
+            width: 200px;
+            padding: 15px;
+            padding-top: 0;
+            padding-right: 0;
+        }
+
+        .btn {
+            margin-top: 25px;
+            padding: 10px 20px 10px 20px;
+            -moz-border-radius: 15px;
+            -o-border-radius: 15px;
+            -webkit-border-radius: 15px;
+            border-radius: 15px;
+            border: 2px solid black;
+            cursor: pointer;
+            color: white;
+            background-color: black;
+        }
+
+        #map {
+            width: 800px;
+            height: 600px;
+        }
+
+        #title {
+            font-family: arial;
+            display: inline-block;
+            position: absolute;
+            font-weight: bold;
+            font-size: 21px;
+            line-height: 28px;
+            top: 20px;
+            right: 20px;
+            z-index: 99;
+            background: rgba(255, 255, 255, 0.65);
+            padding: 10px 20px;
+            -webkit-border-radius: 3px;
+            border-radius: 3px;
+            text-shadow: 1px 1px 1px #FFFFFF -webkit-box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.1);
+            box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.10/js/esri/dijit/css/Popup.css" />
+</head>
+<body class="claro">
+    <div id="main">
+        <h1>ArcGIS JavaScript API Heatmap Overlay</h1>
+        <a href="http://www.arcgis.com/home/item.html?id=3a6d8158252e4b96a8ecfb8b912df78d">Download code</a>.
+        <br />
+        <br />
+        <div id="heatmapArea">
+            <div id="heatLayer"></div>
+            <div id="title">San Francisco 311 incidents</div>
+            <div id="map"></div>
+        </div>
+        <div id="configArea">
+            <h2>Sidenotes</h2>
+            This is a demonstration of a canvas heatmap overlay with the <a href="http://help.arcgis.com/en/webapi/javascript/arcgis/"
+                                                                            target="_blank">ArcGIS API for JavaScript</a>.
+            <br />
+            <br />View the <a href="http://sampleserver3.arcgisonline.com/ArcGIS/rest/services/SanFrancisco/311Incidents/MapServer/0"
+                              target="_blank">Feature layer</a>.
+            <div id="tog" class="btn">Toggle HeatmapOverlay</div>
+            <div id="tog2" class="btn">Toggle Points</div>
+            <div id="tog3" class="btn">Local Max Off</div>
+        </div>
+        <div style="text-align:center;">
+            <a href="http://www.patrick-wied.at/static/heatmapjs/">heatmap.js</a> by
+            <a href="http://www.patrick-wied.at" target="_blank">Patrick Wied</a>
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+    <div style="width:1020px; padding:20px; margin:auto;">
+        <h2>Description</h2>
+
+        <p>
+            This is a custom DynamicMapServiceLayer for Heatmap.js to work with the
+            ArcGIS Javascript API.
+        </p>
+        <h2>Instructions</h2>
+
+        <ol>
+            <li>
+                Include the heatmap.js in your HTML document and require "application/HeatmapLayer" <pre>
+        &lt;script type=&quot;text/javascript&quot; src=&quot;src/heatmap.js&quot;&gt;&lt;/script&gt;
+        </pre>
+
+            </li>
+            <li>
+                Add a div with an ID to hold he canvas element <pre>&lt;div id=&quot;heatLayer&quot;&gt;&lt;/div&gt;</pre>
+
+            </li>
+            <li>
+                Create the heatmap with it's settings and assign it to a global variable. <pre>
+        // create heat layer
+            heatLayer = new HeatmapLayer({
+                config: {
+                    "useLocalMaximum": false,
+                    "radius": 40,
+                    "gradient": {
+                        0.45: "rgb(000,000,255)",
+                        0.55: "rgb(000,255,255)",
+                        0.65: "rgb(000,255,000)",
+                        0.95: "rgb(255,255,000)",
+                        1.00: "rgb(255,000,000)"
+                    }
+                },
+                "map": map,
+                "opacity": 0.85
+            }, "heatLayer");
+        </pre>
+
+            </li>
+            <li>
+                Add the heatLayer to the map. <pre>
+        map.addLayer(heatLayer);
+        </pre>
+
+            </li>
+            <li>
+                Now you just need to add data points to the heatmap. In the example above,
+                I am adding features from a feature layer of 311 incidents. Here's an example with
+                two features. <pre>
+        var data = [
+            {
+                attributes: {},
+                geometry: {
+                    spatialReference: {wkid: 102100}
+                    type: "point"
+                    x: -13625078.0408
+                    y: 4548494.332400002
+                }
+            },
+            {
+                attributes: {},
+                geometry: {
+                    spatialReference: {wkid: 102100}
+                    type: "point"
+                    x: -13625078.0408
+                    y: 4548494.332400002
+                }
+            }
+        ];
+        </pre>
+                <pre>
+        heatLayer.setData(data);
+        </pre>
+
+            </li>
+            <li>
+                I created a function that executes on map pan that gets all the features
+                from a featureLayer within the map's extent.
+<pre>
+function getFeatures() {
+    // set up query
+    var q = new Query();
+    // only within extent
+    q.geometry = map.extent;
+    // give me all of them!
+    q.where = "1=1";
+    // make sure I get them back in my spatial reference
+    q.outSpatialReference = map.spatialReference;
+    // get em!
+    featureLayer.queryFeatures(q, function (featureSet) {
+        var data = [];
+        // if we get results back
+        if (featureSet && featureSet.features && featureSet.features.length > 0) {
+            // set data to features
+            data = featureSet.features;
+        }
+        // set heatmap data
+        heatLayer.setData(data);
+    });
+}
+</pre>
+
+            </li>
+        </ol>
+        <h2>Dependencies</h2>
+
+        <ul>
+            <li>
+                HTML5 Canvas
+                <iframe src="http://caniuse.com/canvas/embed/" width="1020"
+                        scrolling="no" frameborder="0" height="400"></iframe>
+            </li>
+            <li>
+                <a href="http://www.patrick-wied.at/static/heatmapjs/">Heatmap.js</a>
+
+            </li>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript">
+    // get current path
+    var pathRegex = new RegExp(/\/[^\/]+$/);
+    var locationPath = location.pathname.replace(pathRegex, '');
+    // Dojo Config
+    var dojoConfig = {
+        packages: [
+            {
+                name: "application",
+                //location: locationPath + 'src/'
+                location: 'src'
+            }
+        ]
+    };
+</script>
+<script type="text/javascript" src="http://js.arcgis.com/3.10/"></script>
+<script type="text/javascript" src="src/heatmap.js"></script>
+<!-- Terraformer reference -->
+<script src="http://esri.github.io/geojson-layer-js/vendor/terraformer/terraformer.min.js"></script>
+<script src="http://esri.github.io/geojson-layer-js/vendor/terraformer-arcgis-parser/terraformer-arcgis-parser.min.js"></script>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<script type="text/javascript">
+    require([
+        "esri/map",
+        "dojo/on",
+        "dojo/dom",
+        "esri/layers/FeatureLayer",
+        "http://esri.github.io/geojson-layer-js/src/geojsonlayer.js",
+        "src/HeatmapLayer.js",
+        "esri/tasks/query",
+        "esri/geometry/Extent",
+        "dojo/domReady!"
+    ], function (
+        Map,
+        on,
+        dom,
+        FeatureLayer,
+        GeoJsonLayer,
+        HeatmapLayer,
+        Query,
+        Extent
+    ) {
+
+        // Variables
+        var map;
+        var heatLayer;
+        var featureLayer;
+        var dcwardurl = "http://opendata.dc.gov/datasets/0ef47379cbae44e88267c01eaec2ff6e_31.geojson";
+        // get the features within the current extent from the feature layer
+        function getFeatures() {
+            // set up query
+            var q = new Query();
+            // only within extent
+            q.geometry = map.extent;
+            // give me all of them!
+            q.where = "1=1";
+            // make sure I get them back in my spatial reference
+            q.outSpatialReference = map.spatialReference;
+            // get em!
+            featureLayer.queryFeatures(q, function (featureSet) {
+                var data = [];
+                // if we get results back
+                if (featureSet && featureSet.features && featureSet.features.length) {
+                    // set data to features
+                    data = featureSet.features;
+                }
+                // set heatmap data
+                heatLayer.setData(data);
+            });
+        }
+
+        // initial extent of map
+        var initExtent = new Extent({
+            xmax: -13624229.32056175,
+            xmin: -13625120.886837104,
+            ymax: 4548374.604660432,
+            ymin: 4547966.144290476,
+            "spatialReference": {
+                "wkid": 102100
+            }
+        });
+        // create map
+        /*
+        map = new Map("map", {
+            extent: initExtent,
+            sliderStyle: "small",
+            basemap: "streets"
+        });
+        */
+        var map = new Map("map", {            
+            basemap: "streets",
+            center: [-122.5, 45.5],
+            //fitExtent: true,
+            sliderStyle: "small",
+            zoom: 5
+        });
+
+        map.on("load", function () {
+            addGeoJsonLayer(dcwardurl);
+        });
+
+
+        // create heat layer
+        heatLayer = new HeatmapLayer({
+            "useLocalMaximum": false,
+            config: {
+                "radius": 40,
+                "gradient": {
+                    0.45: "rgb(000,000,255)",
+                    0.55: "rgb(000,255,255)",
+                    0.65: "rgb(000,255,000)",
+                    0.95: "rgb(255,255,000)",
+                    1.00: "rgb(255,000,000)"
+                }
+            },
+            "map": map,
+            "opacity": 0.85
+        }, "heatLayer");
+
+
+        // add heat layer to map
+        map.addLayer(heatLayer);
+        // resize map
+        map.resize();
+        // create feature layer to get the points from
+        //featureLayer = new FeatureLayer("http://sampleserver3.arcgisonline.com/ArcGIS/rest/services/SanFrancisco/311Incidents/MapServer/0", {
+        featureLayer = new FeatureLayer("http://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Public_Safety_WebMercator/MapServer/19", {
+            mode: FeatureLayer.MODE_ONDEMAND,
+            visible: false
+        });
+        map.addLayer(featureLayer);
+        // on map extent change
+        on(map, "extent-change", getFeatures);
+        on(dom.byId('tog'), "click", function () {
+            if (heatLayer.visible) {
+                heatLayer.hide();
+            } else {
+                heatLayer.show();
+            }
+        });
+        on(dom.byId('tog2'), "click", function () {
+            if (featureLayer.visible) {
+                featureLayer.hide();
+            } else {
+                featureLayer.show();
+            }
+        });
+        on(dom.byId('tog3'), "click", function () {
+            if (heatLayer.config.useLocalMaximum) {
+                this.innerHTML = 'Local Max Off';
+                heatLayer.config.useLocalMaximum = false;
+            } else {
+                this.innerHTML = 'Local Max On';
+                heatLayer.config.useLocalMaximum = true;
+            }
+        });
+
+        function addGeoJsonLayer(url) {
+            // Create the layer
+            var geoJsonLayer = new GeoJsonLayer({
+                url: url,
+                maxdraw: 10000
+            });
+
+            // Zoom to layer
+            geoJsonLayer.on("update-end", function (e) {
+                map.setExtent(e.target.extent.expand(1.2));
+            });
+            // Add to map
+            map.addLayer(geoJsonLayer);
+
+        }
+    });
+</script>
+</html>
+
+
+

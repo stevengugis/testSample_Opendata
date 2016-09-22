@@ -1,0 +1,284 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+
+    <title>CodePen - Isotope - combination filters with a function</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: sans-serif;
+        }
+
+        /* ---- button ---- */
+
+        .button {
+            display: inline-block;
+            padding: 0.5em 1.0em;
+            background: #EEE;
+            border: none;
+            border-radius: 7px;
+            background-image: linear-gradient( to bottom, hsla(0, 0%, 0%, 0), hsla(0, 0%, 0%, 0.2) );
+            color: #222;
+            font-family: sans-serif;
+            font-size: 16px;
+            text-shadow: 0 1px white;
+            cursor: pointer;
+        }
+
+            .button:hover {
+                background-color: #8CF;
+                text-shadow: 0 1px hsla(0, 0%, 100%, 0.5);
+                color: #222;
+            }
+
+            .button:active,
+            .button.is-checked {
+                background-color: #28F;
+            }
+
+            .button.is-checked {
+                color: white;
+                text-shadow: 0 -1px hsla(0, 0%, 0%, 0.8);
+            }
+
+            .button:active {
+                box-shadow: inset 0 1px 10px hsla(0, 0%, 0%, 0.8);
+            }
+
+        /* ---- button-group ---- */
+
+        .button-group:after {
+            content: '';
+            display: block;
+            clear: both;
+        }
+
+        .button-group .button {
+            float: left;
+            border-radius: 0;
+            margin-left: 0;
+            margin-right: 1px;
+        }
+
+            .button-group .button:first-child {
+                border-radius: 0.5em 0 0 0.5em;
+            }
+
+            .button-group .button:last-child {
+                border-radius: 0 0.5em 0.5em 0;
+            }
+
+        /* ---- grid ---- */
+
+        .grid {
+            background: #DDD;
+            max-width: 1200px;
+        }
+
+            /* clear fix */
+            .grid:after {
+                content: '';
+                display: block;
+                clear: both;
+            }
+
+        /* ui group */
+
+        .ui-group {
+            display: inline-block;
+        }
+
+            .ui-group h3 {
+                display: inline-block;
+                vertical-align: top;
+                line-height: 32px;
+                margin-right: 0.2em;
+                font-size: 16px;
+            }
+
+            .ui-group .button-group {
+                display: inline-block;
+                margin-right: 20px;
+            }
+
+        /* color-shape */
+
+        .color-shape {
+            width: 70px;
+            height: 70px;
+            margin: 5px;
+            float: left;
+        }
+
+            .color-shape.round {
+                border-radius: 35px;
+            }
+
+            .color-shape.big.round {
+                border-radius: 75px;
+            }
+
+            .color-shape.red {
+                background: red;
+            }
+
+            .color-shape.blue {
+                background: blue;
+            }
+
+            .color-shape.yellow {
+                background: yellow;
+            }
+
+            .color-shape.wide, .color-shape.big {
+                width: 150px;
+            }
+
+            .color-shape.tall, .color-shape.big {
+                height: 150px;
+            }
+
+            .color-shape .number {
+                text-align: center;
+                font-size: 24px;
+                margin: 22px 0 0;
+            }
+    </style>
+
+    <script>
+  //window.console = window.console || function(t) {};  //looks optional
+    </script>
+
+
+
+</head>
+
+<body translate="no">
+
+    <h1>Isotope - combination filters with a function</h1>
+
+    <div id="filters">
+
+        <div class="ui-group">
+            <h3>Color</h3>
+            <div class="button-group js-radio-button-group" data-filter-group="color">
+                <button class="button is-checked" data-filter="">any</button>
+                <button class="button" data-filter=".red">red</button>
+                <button class="button" data-filter=".blue">blue</button>
+                <button class="button" data-filter=".yellow">yellow</button>
+            </div>
+        </div>
+
+        <div class="ui-group">
+            <h3>Number</h3>
+            <div class="button-group js-radio-button-group" data-filter-group="size">
+                <button class="button is-checked" data-filter="">any</button>
+                <button class="button" data-filter="greaterThan50">> 50</button>
+                <button class="button" data-filter="even">even</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="grid">
+        <div class="color-shape small round red"><p class="number">19</p></div>
+        <div class="color-shape small round blue"><p class="number">56</p></div>
+        <div class="color-shape small round yellow"><p class="number">47</p></div>
+        <div class="color-shape small square red"><p class="number">38</p></div>
+        <div class="color-shape small square blue"><p class="number">2</p></div>
+        <div class="color-shape small square yellow"><p class="number">14</p></div>
+        <div class="color-shape wide round red"><p class="number">95</p></div>
+        <div class="color-shape wide round blue"><p class="number">46</p></div>
+        <div class="color-shape wide round yellow"><p class="number">94</p></div>
+        <div class="color-shape wide square red"><p class="number">67</p></div>
+        <div class="color-shape wide square blue"><p class="number">52</p></div>
+        <div class="color-shape wide square yellow"><p class="number">23</p></div>
+        <div class="color-shape big round red"><p class="number">48</p></div>
+        <div class="color-shape big round blue"><p class="number">31</p></div>
+        <div class="color-shape big round yellow"><p class="number">88</p></div>
+        <div class="color-shape big square red"><p class="number">47</p></div>
+        <div class="color-shape big square blue"><p class="number">16</p></div>
+        <div class="color-shape big square yellow"><p class="number">27</p></div>
+        <div class="color-shape tall round red"><p class="number">6</p></div>
+        <div class="color-shape tall round blue"><p class="number">91</p></div>
+        <div class="color-shape tall round yellow"><p class="number">75</p></div>
+        <div class="color-shape tall square red"><p class="number">36</p></div>
+        <div class="color-shape tall square blue"><p class="number">48</p></div>
+        <div class="color-shape tall square yellow"><p class="number">38</p></div>
+    </div>
+   
+
+    <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js'></script>
+    <script src='//npmcdn.com/isotope-layout@3/dist/isotope.pkgd.js'></script>
+
+    <script>
+      var filterFns = {
+    greaterThan50: function () {
+        var number = $(this).find('.number').text();
+        return parseInt(number, 10) > 50;
+    },
+    even: function () {
+        var number = $(this).find('.number').text();
+        return parseInt(number, 10) % 2 === 0;
+    }
+};
+var filters = {};
+var $grid = $('.grid').isotope({
+    itemSelector: '.color-shape',
+    filter: function () {
+        var isMatched = true;
+        var $this = $(this);
+        for (var prop in filters) {
+            /*
+            if (window.CP.shouldStopExecution(1)) {
+                break;
+            }
+            */
+            var filter = filters[prop];
+            filter = filterFns[filter] || filter;
+            if (filter) {
+                isMatched = isMatched && $(this).is(filter);
+            }
+            if (!isMatched) {
+                break;
+            }
+        }
+        //window.CP.exitedLoop(1);
+        return isMatched;
+    }
+});
+$('#filters').on('click', '.button', function () {
+    var $this = $(this);
+    var $buttonGroup = $this.parents('.button-group');
+    var filterGroup = $buttonGroup.attr('data-filter-group');
+    filters[filterGroup] = $this.attr('data-filter');
+    $grid.isotope();
+});
+$('.button-group').each(function (i, buttonGroup) {
+    var $buttonGroup = $(buttonGroup);
+    $buttonGroup.on('click', 'button', function () {
+        $buttonGroup.find('.is-checked').removeClass('is-checked');
+        $(this).addClass('is-checked');
+    });
+});
+      //# sourceURL=pen.js
+    </script>
+
+
+    <script>
+        /*
+  if (document.location.search.match(/type=embed/gi)) {
+    window.parent.postMessage("resize", "*");
+  }
+        */
+    </script>
+
+
+</body>
+</html>

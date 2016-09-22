@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title></title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.17.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.17.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <style>
+        #fit {
+            display: block;
+            position: relative;
+            margin: 0px auto;
+            width: 50%;
+            height: 40px;
+            padding: 10px;
+            border: none;
+            border-radius: 3px;
+            font-size: 12px;
+            text-align: center;
+            color: #fff;
+            background: #ee8a65;
+        }
+    </style>
+    <div id='map'></div>
+    <br />
+    <button onclick='fit();' id='fit'>Fit to Kenya</button>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1Ijoic2d1MiIsImEiOiJjaW5obHQ5d3AwdnljdWtseXlmOGMwNThtIn0.eQMN4cP3iMaw1W_vptvOLQ';
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v8',
+            center: [-74.50, 40],
+            zoom: 9
+        });
+
+        function fit() {
+            map.fitBounds([[
+                32.958984,
+                -5.353521
+            ], [
+                43.50585,
+                5.615985
+            ]]);
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,318 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+
+    <title>CodePen - Isotope - combination filters with a function</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: sans-serif;
+            }
+
+            /* ---- button ---- */
+
+            .button {
+                display: inline-block;
+                padding: 10px 18px;
+                margin-bottom: 10px;
+                background: #EEE;
+                border: none;
+                border-radius: 7px;
+                background-image: linear-gradient( to bottom, hsla(0, 0%, 0%, 0), hsla(0, 0%, 0%, 0.2) );
+                color: #222;
+                font-family: sans-serif;
+                font-size: 16px;
+                text-shadow: 0 1px white;
+                cursor: pointer;
+            }
+
+                .button:hover {
+                    background-color: #8CF;
+                    text-shadow: 0 1px hsla(0, 0%, 100%, 0.5);
+                    color: #222;
+                }
+
+                .button:active,
+                .button.is-checked {
+                    background-color: #28F;
+                }
+
+                .button.is-checked {
+                    color: white;
+                    text-shadow: 0 -1px hsla(0, 0%, 0%, 0.8);
+                }
+
+                .button:active {
+                    box-shadow: inset 0 1px 10px hsla(0, 0%, 0%, 0.8);
+                }
+
+            /* ---- button-group ---- */
+
+            .button-group:after {
+                content: '';
+                display: block;
+                clear: both;
+            }
+
+            .button-group .button {
+                float: left;
+                border-radius: 0;
+                margin-left: 0;
+                margin-right: 1px;
+            }
+
+                .button-group .button:first-child {
+                    border-radius: 0.5em 0 0 0.5em;
+                }
+
+                .button-group .button:last-child {
+                    border-radius: 0 0.5em 0.5em 0;
+                }
+
+            /* ---- isotope ---- */
+
+            .grid {
+                border: 1px solid #333;
+            }
+
+                /* clear fix */
+                .grid:after {
+                    content: '';
+                    display: block;
+                    clear: both;
+                }
+
+            /* ---- .element-item ---- */
+
+            .element-item {
+                position: relative;
+                float: left;
+                width: 300px;
+                height: 300px;
+                margin: 5px;
+                padding: 2px; 
+                /*background: #888;*/
+                color: #262524;
+                border: 2px solid green;
+            }
+
+                .element-item > * {
+                    margin: 0;
+                    padding: 0;
+                }
+
+                .element-item .name {
+                    position: absolute;
+                    left: 10px;
+                    top: 60px;
+                    text-transform: none;
+                    letter-spacing: 0;
+                    font-size: 12px;
+                    font-weight: normal;
+                }
+
+                .element-item .symbol {
+                    position: absolute;
+                    left: 10px;
+                    top: 0px;
+                    font-size: 42px;
+                    font-weight: bold;
+                    color: white;
+                }
+
+                .element-item .number {
+                    position: absolute;
+                    right: 8px;
+                    top: 5px;
+                }
+
+                .element-item .weight {
+                    position: absolute;
+                    left: 10px;
+                    top: 76px;
+                    font-size: 12px;
+                }
+            /*
+        .element-item.alkali          { background: #F00; background: hsl(   0, 100%, 50%); }
+        .element-item.alkaline-earth  { background: #F80; background: hsl(  36, 100%, 50%); }
+        .element-item.lanthanoid      { background: #FF0; background: hsl(  72, 100%, 50%); }
+        .element-item.actinoid        { background: #0F0; background: hsl( 108, 100%, 50%); }
+        .element-item.transition      { background: #0F8; background: hsl( 144, 100%, 50%); }
+        .element-item.post-transition { background: #0FF; background: hsl( 180, 100%, 50%); }
+        .element-item.metalloid       { background: #08F; background: hsl( 216, 100%, 50%); }
+        .element-item.diatomic        { background: #00F; background: hsl( 252, 100%, 50%); }
+        .element-item.halogen         { background: #F0F; background: hsl( 288, 100%, 50%); }
+        .element-item.noble-gas       { background: #F08; background: hsl( 324, 100%, 50%); }
+        */
+
+            .test {
+                position: relative;
+                height: 100%;
+                width: 100%;
+                border: 0px solid red;
+                /*top: 20px;*/
+                z-index: -10;
+            }
+
+            object {
+                width: 100%;
+                min-height: 100%;
+            }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js'></script>
+    <script src='//npmcdn.com/isotope-layout@3/dist/isotope.pkgd.js'></script>
+</head>
+
+<body translate="no">
+
+    <h1>Isotope - filtering</h1>
+
+    <div class="button-group filters-button-group">
+        <button class="button is-checked" data-filter="*">show all</button>
+        <button class="button" data-filter=".metal">metal</button>
+        <button class="button" data-filter=".transition">transition</button>
+        <button class="button" data-filter=".alkali, .alkaline-earth">alkali and alkaline-earth</button>
+        <button class="button" data-filter=":not(.transition)">not transition</button>
+        <button class="button" data-filter=".metal:not(.transition)">metal but not transition</button>
+        <button class="button" data-filter="numberGreaterThan50">number > 50</button>
+        <button class="button" data-filter="ium">name ends with &ndash;ium</button>
+    </div>
+
+    <div class="grid">
+        <div id="divPageA" class="element-item transition metal " data-category="transition">
+            <h3 class="name">Mercury</h3>
+            <p class="symbol">Hg</p>
+            <p class="number">80</p>
+            <div id="divPage1" class="test"></div>
+            <p class="weight">200.59</p>
+        </div>
+        <div id="divPageB" class="element-item metalloid " data-category="metalloid">
+            <h3 class="name">Tellurium</h3>
+            <p class="symbol">Te</p>
+            <p class="number">42</p>
+            <div id="divPage2" class="test"></div>
+            <p class="weight">127.6</p>
+        </div>
+        <div id="divPageC" class="element-item post-transition metal" data-category="post-transition">
+           <h3 class="name">Bismuth</h3>
+           <p class="symbol">Bi</p>
+           <p class="number">83</p>
+           <div id="divPage3" class="test"></div>
+           <p class="weight">208.980</p>
+        </div>
+        <div id="divPageD" class="element-item alkali metal " data-category="alkali">
+            <h3 class="name">Sodium</h3>
+            <p class="symbol">Na</p>
+            <p class="number">11</p>
+            <div id="divPage4" class="test"></div>
+            <p class="weight">22.99</p>
+        </div>
+        <div id="divPageE" class="element-item transition metal " data-category="transition">
+            <h3 class="name">Cadmium</h3>
+            <p class="symbol">Cd</p>
+            <p class="number">48</p>
+            <div id="divPage5" class="test"></div>
+            <p class="weight">112.411</p>
+        </div>
+        <div id="divPageF" class="element-item alkaline-earth metal " data-category="alkaline-earth">
+            <h3 class="name">Calcium</h3>
+            <p class="symbol">Ca</p>
+            <p class="number">20</p>
+            <div id="divPage6" class="test"></div>
+            <p class="weight">40.078</p>
+        </div>
+    </div>
+
+    <script>
+    // init Isotope
+    var $grid = $('.grid').isotope({
+        itemSelector: '.element-item',
+        layoutMode: 'fitRows'
+    });
+    // filter functions
+    var filterFns = {
+        // show if number is greater than 50
+        numberGreaterThan50: function () {
+            var number = $(this).find('.number').text();
+            return parseInt(number, 10) > 50;
+        },
+        // show if name ends with -ium
+        ium: function () {
+            var name = $(this).find('.name').text();
+            return name.match(/ium$/);
+        }
+    };
+    // bind filter button click
+    $('.filters-button-group').on('click', 'button', function () {
+        var filterValue = $(this).attr('data-filter');
+        // use filterFn if matches value
+        filterValue = filterFns[filterValue] || filterValue;
+        $grid.isotope({ filter: filterValue });
+    });
+    // change is-checked class on buttons
+    $('.button-group').each(function (i, buttonGroup) {
+        var $buttonGroup = $(buttonGroup);
+        $buttonGroup.on('click', 'button', function () {
+            $buttonGroup.find('.is-checked').removeClass('is-checked');
+            $(this).addClass('is-checked');
+        });
+    });
+
+    $("#divPage1").html('<object data="http://testapps02.dcgis.in.dc.gov/exploreDCopendata/dcward.html" />');
+
+    $("#divPage2").html('<object data="http://testapps02.dcgis.in.dc.gov/exploreDCopendata/DCPublicSchools.htm" />');
+
+    $("#divPage3").html('<object data="http://testapps02.dcgis.in.dc.gov/exploreDCopendata/DCPoliceStations.html" />');
+
+    $("#divPage4").html('<object data="http://testapps02.dcgis.in.dc.gov/exploreDCopendata/DCHealthCare.htm" />');
+
+    $("#divPage5").html('<object data="http://testapps02.dcgis.in.dc.gov/exploreDCopendata/DCCensusTracts_V2.html" />');
+
+    $("#divPage6").html('<object data="http://testapps02.dcgis.in.dc.gov/exploreDCopendata/DCCensusTractsbyPopulation.html" />');
+
+
+    $('#divPageA').click(function () {
+        var url = "http://testapps02.dcgis.in.dc.gov/exploreDCopendata/dcward.html";
+        var newwindow = window.open(url, '_blank');
+    });
+
+    $('#divPageB').click(function () {
+        var url = "http://testapps02.dcgis.in.dc.gov/exploreDCopendata/DCPublicSchools.htm";
+        var newwindow = window.open(url, '_blank');
+    });
+
+    $('#divPageC').click(function () {
+        var url = "http://testapps02.dcgis.in.dc.gov/exploreDCopendata/DCPoliceStations.html";
+        var newwindow = window.open(url, '_blank');
+    });
+
+    $('#divPageD').click(function () {
+        var url = "http://testapps02.dcgis.in.dc.gov/exploreDCopendata/DCHealthCare.htm";
+        var newwindow = window.open(url, '_blank');
+    });
+
+    $('#divPageE').click(function () {
+        var url = "http://testapps02.dcgis.in.dc.gov/exploreDCopendata/DCCensusTracts_V2.html";
+        var newwindow = window.open(url, '_blank');
+    });
+
+    $('#divPageF').click(function () {
+        var url = "http://testapps02.dcgis.in.dc.gov/exploreDCopendata/DCCensusTractsbyPopulation.html";
+        var newwindow = window.open(url, '_blank');
+    });
+
+    </script>
+
+
+
+
+</body>
+</html>

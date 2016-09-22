@@ -1,0 +1,193 @@
+﻿<html>
+<head>
+    <title>DC Wards</title>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <link rel="polygon" type="application/json" href="http://opendata.dc.gov/datasets/0ef47379cbae44e88267c01eaec2ff6e_31.geojson">
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+
+    <style>
+        #map {
+            height: 100%;
+        }
+    </style>
+    <style>
+        .childbox1 {
+            font: 28px/1 Arial, sans-serif;
+            padding: 12px;
+            border: 0px solid black;
+            margin: 0px;
+            text-align: center;
+            font-weight: bold;
+            color: #FFF;
+            background-color: #50667f;
+            font-family: 'Montserrat', Helvetica, Arial, sans-serif;
+            opacity: 0.8;
+        }
+
+        .childbox2 {
+            padding: 0px;
+            margin-left: 10px;
+            color: #FFF;
+            font-weight: normal;
+            font-family: 'Montserrat', Helvetica, Arial, sans-serif;
+            border: solid 0px red;
+        }
+
+        .map-overlay2 {
+            position: relative;
+            padding: 5px;
+            margin: auto;
+            width: 40%;
+            border-radius: 5px;
+            z-index: 300;
+            background-color: #50667f;
+            opacity: 0.8;
+        }
+
+        a:link {
+            color: white;
+            background-color: transparent;
+            text-decoration: underline;
+        }
+
+        a:visited {
+            color: yellow;
+            background-color: transparent;
+            text-decoration: none;
+        }
+
+        a:hover {
+            font-weight: bold;
+            background-color: transparent;
+            text-decoration: underline;
+        }
+    </style>
+
+</head>
+<body>  
+    <div class="myui-widget">
+        <!--<form>-->
+        <label for="txtEmployeeName">Developer:</label>
+        <input id="txtEmployeeName" />
+        <!--</form>-->
+    </div> 
+    <script>
+        var url = "http://opendata.dc.gov/datasets?q=*&page=3&sort_by=updated_at";
+        var url2 = "http://opendata.dc.gov/datasets?q=*&page=";
+        var url3 = "&sort_by=updated_at";
+        var page_count = 0;
+        var pageArray = [];
+        var datasetArray = [];
+        var tmpCount = 0;
+
+        $(document).ready(function () {
+            //1. get datasets count:
+            var url1 = "http://opendata.dc.gov/datasets";
+            $.get(url1, function (data1) {
+                var total_count = data1.metadata.stats.total_count;
+                page_count = Math.ceil(total_count / data1.metadata.stats.count);
+                //console.debug(data1);
+                console.log("total dataset: " + data1.metadata.stats.total_count + "every page count: " + data1.metadata.stats.count + " total pages = " + page_count);
+                getGeoJsonData(page_count)
+            });
+        });
+
+        function getGeoJsonData(page_count) {
+            for (var i = 1; i <= page_count; i++) {
+            //for (var i = 1; i <= 2; i++) {
+                console.log("in func getGeoJsonData, url" + i + "= " + url2 + i + url3);
+                pageArray.push(url2 + i + url3);
+
+                /*
+                //$.get(url, function(data) {
+                $.get(url2 + i + url3, function (data2) {
+                    var tmpurl = url2 + "'" + i + "'" + url3;
+                    //console.log("url " + i + "= " + url2 + "'" + i + "'" + url3);
+                });
+                */
+            }
+
+            console.debug(pageArray);
+            console.log("pageArray length = " + pageArray.length);
+
+            for (var i = 0; i < pageArray.length; i++) {
+            //for (var i = 0; i < 50; i++) {
+                doAjax(i);                
+            }
+
+            function doAjax(i) {
+                //console.log("in doAjax, url = " + pageArray[i]);
+                var url5 = "http://opendata.dc.gov/datasets";
+
+                $.get(pageArray[i], function (data3) {
+                    console.log( "the " + i + " get data3, url = " + pageArray[i]);
+                    console.debug(data3);                    
+
+                    for (var j = 0; j < data3.metadata.stats.count; j++) {
+                        var datasetObj = {};
+                        tmpCount++;
+                        //console.log("the " + tmpCount + " item_name = " + data3.data[j].item_name);
+                        //console.log("the " + tmpCount + " item id = " + data3.data[j].id);
+                        datasetObj.value = data3.data[j].item_name;
+                        datasetObj.id = data3.data[j].id;
+                        datasetObj.geojsonurl = "http://opendata.dc.gov/datasets/" + data3.data[j].id + ".geojson";
+                        //console.log("the " + tmpCount + " geojson url = " + datasetObj.geojsonurl);
+                        datasetArray.push(datasetObj);                        
+                    }
+                    /*
+                    if (datasetArray.length == 20) {
+                        console.log("reach end, datasetArray length = " + datasetArray.length);
+                        console.debug(datasetArray);
+                    }
+                    */
+                });
+            }
+        }
+
+        $(function () {
+            var employees = [
+               { "value": "Tom smith very long name and long name ", "id": "1", "value2": "male gun" },
+    { "value": "Stefan justin very long name and long name", "id": "2", "value2": "male gun" },
+    { "value": "Martin grove very long name and long name", "id": "3", "value2": "female raffle" },
+    { "value": "Sara peter George very long name and long name", "id": "4", "value2": "male shoot" },
+    { "value": "Valarie frank duck very long name and long name", "id": "5", "value2": "female gun" }
+            ]          
+           
+
+            $("#txtEmployeeName").autocomplete({                
+                source: function (request, response) {
+                    var matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
+
+                    console.log("in auto func , datasetArray length = " + datasetArray.length);
+                    //console.debug(datasetArray);
+
+                    //var matching = $.grep(employees, function (obj) {
+                    var matching = $.grep(datasetArray, function (obj) {
+                        var name = obj.value;
+                        //var name = value.item_name;
+                        //var id = value.id;
+                        var url = obj.geojsonurl;
+                        //var name = value.id2;
+
+                        //return matcher.test(name) || matcher.test(id) || matcher.test(id2);
+                        return matcher.test(name);
+                    });
+                    response(matching);
+                },
+                select: function (event, ui) {
+                    console.log("selct " + ui.item.value + ", url: " + ui.item.geojsonurl);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+

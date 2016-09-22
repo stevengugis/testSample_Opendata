@@ -1,0 +1,6 @@
+C:\testJavaScriptPrj\WebApplication1\WebApplication1\bin\WebApplication1.dll.config
+C:\testJavaScriptPrj\WebApplication1\WebApplication1\bin\WebApplication1.dll
+C:\testJavaScriptPrj\WebApplication1\WebApplication1\bin\WebApplication1.pdb
+C:\testJavaScriptPrj\WebApplication1\WebApplication1\obj\Debug\WebApplication1.dll
+C:\testJavaScriptPrj\WebApplication1\WebApplication1\obj\Debug\WebApplication1.pdb
+C:\testJavaScriptPrj\WebApplication1\WebApplication1\obj\Debug\WebApplication1.csprojResolveAssemblyReference.cache

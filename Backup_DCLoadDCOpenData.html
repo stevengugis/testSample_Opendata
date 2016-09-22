@@ -1,0 +1,177 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=7,IE=9">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <title>Load DC GeoJSON Layer</title>
+    <link rel="shortcut icon" href="//esri.github.io/quickstart-map-js/images/favicon.ico">
+    <!-- ArcGIS API for JavaScript CSS-->
+    <link rel="stylesheet" href="//js.arcgis.com/3.10/js/esri/css/esri.css">
+    <!-- Web Framework CSS - Bootstrap (getbootstrap.com) and Bootstrap-map-js (github.com/esri/bootstrap-map-js) -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//esri.github.io/bootstrap-map-js/src/css/bootstrapmap.css">
+    <style>
+        html, body, #mapDiv {
+            height: 100%;
+            width: 100%;
+        }
+
+        @media (max-width: 600px) {
+            .panel-fixed {
+                width: 300px;
+            }
+        }
+
+        .panel-primary .panel-heading {
+            background-color: #50667f;
+            border-color: #50667f;
+        }
+        .panel-fixed {
+            width: 400px;
+            opacity:0.8;
+        }
+        .btn-success {
+            background-color: #50667f;
+            border-color: #50667f;
+            color: #fff;
+       }
+    </style>   
+
+    <!-- ArcGIS API for JavaScript library references -->
+    <script src="//js.arcgis.com/3.10"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <!-- Terraformer reference -->
+    <script src="http://esri.github.io/geojson-layer-js/vendor/terraformer/terraformer.min.js"></script>
+    <script src="http://esri.github.io/geojson-layer-js/vendor/terraformer-arcgis-parser/terraformer-arcgis-parser.min.js"></script>  
+
+    <script>
+    require(["esri/map",
+        "http://esri.github.io/geojson-layer-js/src/geojsonlayer.js",
+        "esri/renderers/SimpleRenderer",
+        "dojo/on",
+        "dojo/query",
+        "dojo/dom",
+        "dojo/domReady!"],
+      function (Map, GeoJsonLayer, SimpleRenderer, on, query, dom) {
+          var daraSource_url = "http://opendata.dc.gov";
+          var instruction = "Description: Add sample DC Open Data in geojson file from dropdown list or copy the geojson file url from DC Open Data website.";
+
+          $('#subtitle2').html('<a id="a2" >Data Source</a>');
+          $("#a2").attr("href", daraSource_url);
+          $("#a2").attr('title', daraSource_url);
+
+          $('#subtitle3').text(instruction);
+
+        // Create map
+        var map = new Map("mapDiv", {
+            basemap: "gray",
+            center: [-122.5, 45.5],
+            zoom: 5
+        });
+
+        map.infoWindow.domNode.className += " light";
+
+        map.on("load", function () {           
+            addGeoJsonLayer("http://opendata.dc.gov/datasets/0ef47379cbae44e88267c01eaec2ff6e_31.geojson");
+        });
+
+        function selectGeoJsonData(e) {
+            var url;
+            // Get the user input
+            if (e.target.nodeName === "SELECT") {
+                url = dom.byId("geoJsonUrl").value = e.target.options[e.target.selectedIndex].value;
+            } else {
+                url = dom.byId("geoJsonUrl").value;
+            }
+            // Add the layer
+            addGeoJsonLayer(url);
+        }
+
+        function addGeoJsonLayer(url) {
+            // Create the layer
+            var geoJsonLayer = new GeoJsonLayer({
+                url: url 
+            });            
+
+            // Zoom to layer
+            geoJsonLayer.on("update-end", function (e) {
+                map.setExtent(e.target.extent.expand(1.2));
+            });
+            // Add to map
+            map.addLayer(geoJsonLayer);
+
+        }
+
+        function removeAllLayers() {
+            var i, lyr, ids = map.graphicsLayerIds;
+            for (i = ids.length -1; i > -1; i--) {
+                lyr = map.getLayer(ids[i]);
+                map.removeLayer(lyr);
+            }
+            map.infoWindow.hide();
+        }
+
+          // Wire UI events       
+        on(dom.byId("selGeoJson"), "change", selectGeoJsonData);
+        on(dom.byId("btnAdd"), "click", selectGeoJsonData);
+        on(dom.byId("btnRemove"), "click", removeAllLayers);
+
+        // Toggle panel
+        on(query(".panel-heading")[0], "click", function () {
+            if (query(".glyphicon.glyphicon-chevron-up")[0]) {
+                query(".glyphicon").replaceClass("glyphicon-chevron-down", "glyphicon-chevron-up");
+                query(".panel-body.collapse").removeClass("in");
+            } else {
+                query(".glyphicon").replaceClass("glyphicon-chevron-up", "glyphicon-chevron-down");
+                query(".panel-body.collapse").addClass("in");
+            }
+        });
+    });
+    </script>
+</head>
+<body>
+    <div class="panel panel-primary panel-fixed">
+        <div class="panel-heading">
+            <h3 class="panel-title">Load DC Open Data</h3>
+            <button id="chevron" class="btn btn-primary btn-xs btn-absolute">
+                <span class="glyphicon glyphicon-chevron-up"></span>
+            </button>
+        </div>
+        <div class="panel-body collapse in">           
+            <div class="form text-left">  
+                <div class="form-group">
+                    <div id="subtitle2" class="control-label">Sample DC Data</div>
+                    <div id="subtitle3" class="control-label">Instruction</div>
+             </div>
+                    <div class="form-group">
+                        <label >Input Your GeoJson file URL</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="geoJsonUrl" value=" " placeholder=" ">
+                            <span class="input-group-btn">
+                                <button id="btnAdd" class="btn btn-success" type="button">Load</button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Sample DC Data</label>
+                        <select class="form-control" id="selGeoJson">
+                            <option value="http://opendata.dc.gov/datasets/91d7eb9416964c1fb3dc94ceeae6b760_7.geojson">GeoJSON File - School Attendance Zones (Middle School)</option>
+                            <option value="http://opendata.dc.gov/datasets/ead6291a71874bf8ba332d135036fbda_58.geojson">GeoJSON File - Metro Lines (Regional)</option>
+                            <option value="http://opendata.dc.gov/datasets/e3896b58a4e741d48ddcda03dae9d21b_51.geojson">GeoJSON File - Metro Stations (Regional)</option>
+                            <option value="http://opendata.dc.gov/datasets/a1f7acf65795451d89f0a38565a975b3_5.geojson">GeoJSON File - Capital Bike Share Locations</option>
+                            <option value="http://opendata.dc.gov/datasets/db24f3b7de994501aea97ce05a50547e_10.geojson">GeoJSON File - Police Service Areas (PSA)</option>
+                            <option value="http://opendata.dc.gov/datasets/a3ed163dbf994792a010d742ef1f683d_6.geojson">GeoJSON File - Hotel Locations</option>
+                            <option value="http://opendata.dc.gov/datasets/6c18bb76d8644bc1bf53cac2d2199564_4.geojson">GeoJSON File - Hospitals</option>
+                        </select>
+                    </div>
+                    <div class="form-group text-center">
+                        <button id="btnRemove" class="btn btn-default btn-block">Clear All</button>
+                    </div>
+                </div>
+        </div>
+    </div>
+    <div id="mapDiv">        
+    </div>   
+</body>
+</html>

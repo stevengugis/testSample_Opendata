@@ -1,0 +1,99 @@
+﻿<html>
+<head>
+  <title>Health Care Leaflet map!</title>
+  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css"/>
+  <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <style>
+    #map{        
+        position:absolute;
+        width:100%;
+         height:100%;
+         top: 0;
+            bottom: 0;
+    }    
+
+        .childbox1 {
+           border: 0px solid black;           
+            font: 32px/1 Arial, sans-serif; 
+            padding: 15px;
+            border: 0px solid black;
+            margin: 0px;
+            text-align:center;
+            font-weight: bold;
+            color:#FFF;
+            background-color: #50667f;
+         	font-family: 'Montserrat', Helvetica, Arial, sans-serif;
+            opacity:0.8;
+        }
+         .childbox2 {            
+            padding: 5px;
+            border: 0px solid black;
+            margin: 0px;
+            color:#FFF;
+            background-color: #50667f;
+            font-weight: normal;
+           border: 0px solid black;
+         	font-family: 'Montserrat', Helvetica, Arial, sans-serif;
+               opacity:0.8; 
+        }  
+          .map-overlay2 {
+          
+            position:relative;           
+            /*top: 0;*/           
+            padding: 0px;
+             margin: auto;
+            width: 50%;           
+            border-radius: 3px;  
+            z-index:300;
+        }             
+  </style>
+</head>
+<body>
+    <div class='map-overlay2'>
+        <div id="title" class="childbox1">
+            I shall be in the middle of parentbox regardless of its size!
+
+        </div>
+
+        <div id="subtitle" class="childbox2">
+            You shall be ddle of paree!
+        </div>
+    </div>
+  <div id="map">
+  </div>    
+
+  <script>
+      //samples; http://maptimeboston.github.io/leaflet-intro/
+      //http://www.fulcrumapp.com/blog/using-leaflet/
+      // initialize the map
+      var map = L.map('map').setView([38.8929, -77.0252], 12);
+     
+
+      // load a tile layer
+     // L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',  
+      L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+        attribution: 'Tiles by <a href="http://mapc.org">MAPC</a>, Data by <a href="http://mass.gov/mgis">MassGIS</a>',
+        maxZoom: 17,
+        minZoom: 9
+    }).addTo(map);
+
+      // load GeoJSON from an external file use URL or use local geojson all work
+    $.getJSON("http://opendata.dc.gov/datasets/018890d7399245759f05c7932261ef44_7.geojson", function (data) {
+    //$.getJSON("Primary_Care_Centers.geojson", function (data) {
+          // add GeoJSON layer to the map once the file is loaded          
+          L.geoJson(data, {
+              pointToLayer: function (feature, latlng) {
+                  //var marker = L.marker(latlng, { icon: ratIcon });
+                  var marker = L.marker(latlng);
+                  marker.bindPopup("Name: " + feature.properties.PrimaryCarePtNAME + '<br/>' + "Address: " + feature.properties.PrimaryCarePtADDRESS + '<br/>' + "Phone: " + feature.properties.PrimaryCarePtPHONE);
+                  return marker;
+              }
+          }).addTo(map);
+      });
+
+  </script>
+</body>
+</html>
+

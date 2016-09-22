@@ -1,0 +1,337 @@
+﻿<html>
+<head>
+    <meta charset=utf-8 />
+    <title>Capital Bike Share Locations</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox.js/plugins/turf/v1.3.0/turf.min.js'></script>
+    <script src='https://api.tiles.mapbox.com/mapbox.js/v2.0.1/mapbox.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox.js/v2.0.1/mapbox.css' rel='stylesheet' />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <link href='https://www.mapbox.com/base/latest/base.css' rel='stylesheet' />
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .leaflet-popup-content .marker-title {
+            font-weight: 400;
+            color: #999;
+            line-height: 1.3em;
+        }
+
+        .marker-title span {
+            color: #00704A;
+            font-weight: bold;
+        }
+
+        #milecount {
+            line-height: 2em;
+            color: #00704A;
+        }
+
+        .space-left2 {
+            margin-left: 20px;
+        }
+
+        ul.pin-top {
+            border-radius: 3px;
+        }
+
+            ul.pin-top li {
+                padding: 1em;
+            }
+
+        span.label {
+            display: block;
+        }
+
+        li.fill-white {
+            padding: .5em 1em 1em 1em;
+        }
+
+        li .content {
+            display: none;
+        }
+
+        li.fill-white .content {
+            display: block;
+        }
+
+        li.fill-white span.label, li.fill-purple span.label, li.fill-green span.label {
+            text-transform: uppercase;
+            font-size: .7em;
+            margin-bottom: .7em;
+        }
+
+        li.fill-green, li.fill-purple {
+            color: #FFF;
+        }
+
+        .elevGraph {
+            fill: rgba(0, 0, 0, 0.1);
+            stroke: none;
+            stroke-width: 4px;
+        }
+
+        #title-block {
+            height: 60px;
+        }
+
+        #tooltip {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        #searchresults {
+            width: 93%;
+            background: #FFF;
+        }
+
+        .marker-hover {
+            background: steelblue;
+            border-radius: 50%;
+            border: 2px solid white;
+            height: 20px;
+        }
+
+        .focus circle {
+            fill: steelblue;
+            stroke: white;
+        }
+
+        #geolocate {
+            display: none;
+        }
+
+        #title {
+             position:fixed;
+             z-index: 100;  
+             top:5%;  
+             left:50%;  
+             margin:-100px 0 0 -100px;  
+             
+        }
+    </style>
+</head>
+<body>
+    <div id='map'></div>
+    <div id="title2">
+        <ul class='pin-top pad1 quiet space-top2 space-left2 col4'>
+            <li id='title-block' class='fill-denim dark keyline-bottom'>
+                <p class='col10 space-top0'>Capital Bike Share Locations  Capital Bike Share Locations</p>
+               
+            </li>
+            <li id='start-location' class='fill-white keyline-bottom'>
+                <span class='label'>Choose starting location</span>
+                <div class='content'>
+                    <div>
+                        <span id='milecount' class='strong'>0</span> locations within a 5 minute walk from here
+                    </div>
+
+                </div>
+                <div class='selection'>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div id='tooltip' class='col4'></div>
+    <!--<script type='text/javascript' src='d3.js'></script>-->
+    <script>
+        L.mapbox.accessToken = 'pk.eyJ1IjoiaGV5aXRzZ2FycmV0dCIsImEiOiIwdWt5ZlpjIn0.73b7Y47rgFnSD7QCNeS-zA';
+
+        var map = L.mapbox.map('map', 'duncangraham.b134a19e', { zoomControl: true })
+            .setView([38.90512740512037, -77.03433036804199], 14);
+
+        var isEmbed = location.search;
+        isEmbed = isEmbed.slice(1);
+
+        if (isEmbed == 'embed') {
+            new L.Control.Zoom({ position: 'topright' }).addTo(map);
+            map.scrollWheelZoom.disable();
+        }
+
+        var marker = L.marker(new L.LatLng(38.904, -77.032), {
+            icon: L.mapbox.marker.icon({
+                "marker-color": "#8E8E8E",
+                "title": "where are the stations?",
+                "marker-symbol": "pitch",
+                "marker-size": "large"
+            }),
+            draggable: true,
+            zIndexOffset: 999
+        });
+
+        var start,
+            destination;
+
+        var currentPosition;
+
+        //geolocation
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            }
+        }
+
+        function showPosition(position) {
+            currentPosition = [position.coords.latitude, position.coords.longitude];
+            //if in DC, show geocoder.
+            if (currentPosition[0] >= 38.77442837007637 && currentPosition[0] <= 39.04478604850143 && currentPosition[1] >= -77.23800659179688 && currentPosition[1] <= -76.82601928710938) {
+                $('#geolocate').show();
+            }
+        }
+
+        function pointBuffer(pt, radius, units, resolution) {
+            var ring = []
+            var resMultiple = 360 / resolution;
+            for (var i = 0; i < resolution; i++) {
+                var spoke = turf.destination(pt, radius, i * resMultiple, units);
+                ring.push(spoke.geometry.coordinates);
+            }
+            if ((ring[0][0] !== ring[ring.length - 1][0]) && (ring[0][1] != ring[ring.length - 1][1])) {
+                ring.push([ring[0][0], ring[0][1]]);
+            }
+            return turf.polygon([ring])
+        }
+
+        $.get('http://opendata.dc.gov/datasets/a1f7acf65795451d89f0a38565a975b3_5.geojson', function (data) {
+            //test if data is JSON
+            if (typeof data == 'object') {
+                var fc = data;
+            } else {
+                var fc = JSON.parse(data);
+            }
+
+            $('#findme').on('click', function () {
+                marker.setLatLng(currentPosition);
+                map.setView(currentPosition, 14);
+                updateVenues();
+            });
+
+            //input search functionality
+            $('fieldset input').keyup(function (event) {
+                var contents = $('fieldset input').val();
+                var url = 'https://api.tiles.mapbox.com/v4/geocode/mapbox.places/' + contents + '.json?access_token=' + L.mapbox.accessToken;
+
+                $.get(url, function (data) {
+                    $('.result').remove();
+                    data.features.forEach(function (result) {
+                        var place = result['place_name'];
+                        var reg = new RegExp(contents, "gi");
+                        place = place.replace(reg, function (match) { return "<strong>" + match + "</strong>" });
+                        $('#searchresults')
+                        .append('<div class="result keyline-bottom keyline-left keyline-right small">' + place + '</div>')
+                    });
+                    $('.result').each(function (index) {
+                        var coords = (data.features[index]['center']);
+                        $(this).on('click', function () {
+                            map.setView([coords[1], coords[0]], 13);
+                            marker.setLatLng([coords[1], coords[0]]);
+                            updateVenues();
+                        })
+                    })
+                })
+
+                if (event.keyCode == 13) {
+                    geocoder.query(contents, showMap);
+                    $('input').blur();
+                }
+            });
+
+            // get position, draw buffer, find within, find nearest, add to map
+            function updateVenues() {
+                $('path').remove();
+                $('.leaflet-marker-pane img').not(':first').remove();
+                var position = marker.getLatLng();
+
+                var point = turf.point(position.lng, position.lat);
+
+                //draw buffer
+                var bufferLayer = L.mapbox.featureLayer().addTo(map);
+                var buffer = pointBuffer(point, .25, 'miles', 120);
+                buffer.properties = {
+                    "fill": "#00704A",
+                    "fill-opacity": 0.1,
+                    "stroke": "#00704A",
+                    "stroke-width": 2,
+                    "stroke-opacity": 0.5
+                };
+
+                bufferLayer.setGeoJSON(buffer);
+                //var within = turf.within(fc,bufferLayer.getGeoJSON());
+
+                var within = turf.featurecollection(fc.features.filter(function (shop) {
+                    if (turf.distance(shop, point, 'miles') <= .25) return true;
+                }));
+                $('#milecount').html(within.features.length);
+                function mileConvert(miles) {
+                    if (miles <= 0.25) {
+                        return (miles * 5280).toFixed(0) + ' ft';
+                    } else {
+                        return miles.toFixed(2) + ' mi';
+                    }
+                }
+                within.features.forEach(function (feature) {
+                    var distance = parseFloat(turf.distance(point, feature, 'miles'));
+                    feature.properties["marker-color"] = "C73E3E";
+                    feature.properties["title"] = '<span>Distance: ' + mileConvert(distance) + '</span><br>Address: ' + feature.properties["ADDRESS"] + '<br>Bikes: ' + feature.properties["NUMBER_OF_BIKES"] + '<br>Empty Docks: ' + feature.properties["NUMBER_OF_EMPTY_DOCKS"];
+                    feature.properties["marker-size"] = "medium";
+                    feature.properties["marker-symbol"] = "bicycle";
+                })
+
+                var nearest = turf.nearest(point, fc);
+                var nearestdist = parseFloat(turf.distance(point, nearest, 'miles'));
+
+                nearest.properties["marker-color"] = "C73E3E";
+                nearest.properties["title"] = '<span>' + mileConvert(nearestdist) + ' (nearest)</span><br>' + nearest.properties["name"] + '<br>Bikes: ' + nearest.properties["NUMBER_OF_BIKES"] + '<br>Empty Docks: ' + nearest.properties["NUMBER_OF_EMPTY_DOCKS"];
+                nearest.properties["marker-size"] = "large";
+                nearest.properties["marker-symbol"] = "bicycle";
+
+                var nearest_fc = L.mapbox.featureLayer().setGeoJSON(turf.featurecollection([within, nearest])).addTo(map);
+
+                nearest_fc.on('mouseover', function (e) {
+                    e.layer.openPopup();
+                });
+                nearest_fc.on('mouseout', function (e) {
+                    e.layer.closePopup();
+                })                
+            }
+
+            marker.on('drag', function () { updateVenues() });
+
+            updateVenues();
+
+            var elevProfile = [];
+            var queryPoints = [];  
+           
+            var hover = L.marker([], {
+                icon: L.divIcon({
+                    className: 'marker-hover',
+                    iconSize: 20,
+                    iconAnchor: [10, 10]
+                })
+            })            
+        });
+
+        $('.refresh').on('click', function () {
+            document.location.reload(true);
+        })
+
+        getLocation();
+        marker.addTo(map);
+
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Census Tracts - 2010</title>
+    <meta charset="utf-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <link rel="polygon" type="application/json" href="http://opendata.dc.gov/datasets/6969dd63c5cb4d6aa32f15effb8311f3_8.geojson">
+    <style>
+        .info {
+            padding: 6px 8px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            background: white;
+            background: rgba(255,255,255,0.8);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+
+            .info h4 {
+                margin: 0 0 5px;
+                color: #777;
+            }
+
+        .legend {
+            line-height: 18px;
+            color: #555;
+        }
+
+            .legend i {
+                width: 18px;
+                height: 18px;
+                float: left;
+                margin-right: 8px;
+                opacity: 0.7;
+            }
+            .map-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 50px;
+            background: rgba(255, 255, 255, 0.8);
+            margin-left: 50px;
+            font-family: Arial, sans-serif;
+            overflow: auto;
+            border-radius: 3px;
+        }
+            #map {
+            position:absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+             #features {
+            top: 5px;
+            height: 80px;
+            margin-top: 20px;
+            margin-right: 70px;
+            width: 450px;
+        }
+    </style>
+</head>
+<body>  
+    <div id='map'></div>
+    <div class='map-overlay' id="features"><h1> DC WARD 2012 </h1></div>
+    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+    <script>
+	 var baseTiles =	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+			maxZoom: 18,
+			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
+		});
+
+function getColor(p) {
+    return p >= 7000 ? '#253494' :
+           p >=5000 && p <=7000 ? '#2c7fb8' :
+           p >=3000 && p <= 5000  ? '#41b6c4' :
+           p >=1000 && p<=3000 ? '#a1dab4' :
+            '#ffffcc';
+}
+function setStyle(feature) {
+    return {
+        fillColor: getColor(feature.properties.P0010001),
+        weight: 2,
+        opacity: 1.0,
+        color: 'black',
+        fillOpacity: 0.6
+    };
+}
+
+		$.getJSON($('link[rel="polygon"]').attr("href"), function(data){
+		var geojson = L.geoJson(data,{
+		style:setStyle,
+			onEachFeature: function(feature,layer){
+			    layer.bindPopup("Tract: " + feature.properties.TRACT + "<br>" + "Population: " + feature.properties.P0010001)
+				}
+		});
+
+
+		var legend = L.control({position: 'bottomright'});
+
+		legend.onAdd = function (map) {
+
+    var div = L.DomUtil.create('div', 'info legend'),
+        lower = [0,1000,3000,5000,7000],
+        upper = [1000,3000,5000,7000,"plus"],
+        labels = [""];
+
+    // loop through our density intervals and generate a label with a colored square for each interval
+    for (var i = 0; i < lower.length; i++) {
+        div.innerHTML +=
+            '<i style="background:' + getColor(lower[i] + 1) + '"></i> ' +
+            lower[i] + '&ndash;' + upper[i]+'<br>';
+   }
+
+    return div;
+};
+
+		var map = L.map('map').setView([38.8929, -77.0252], 12);
+		baseTiles.addTo(map);
+		geojson.addTo(map);
+		legend.addTo(map);
+		});
+
+		
+
+    </script>
+</body>
+</html>
